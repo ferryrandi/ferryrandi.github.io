@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Custom Keychain Clicker</title>
+<style>
+*{box-sizing:border-box}
+body{font-family:Arial,sans-serif;background:#f4f4f5;margin:0;padding:18px;color:#222}
+.card{max-width:620px;margin:auto;background:#fff;border-radius:18px;padding:22px;box-shadow:0 4px 18px #0001}
+h1{font-size:24px;margin:0 0 6px}.sub{color:#666;margin:0 0 22px}
+label{display:block;font-weight:700;margin:16px 0 8px}
+input,select,textarea,button{width:100%;padding:13px;border:1px solid #ccc;border-radius:10px;font-size:16px}textarea{min-height:88px;resize:vertical;font-family:Arial,sans-serif}
+.section{border-top:1px solid #eee;margin-top:22px;padding-top:18px}
+.row{display:grid;grid-template-columns:58px 1fr;gap:10px;align-items:center;margin:8px 0}
+.char{font-size:20px;font-weight:700;text-align:center;background:#f1f1f1;border-radius:9px;padding:11px}
+button{margin-top:12px;color:#fff;font-weight:700;border:0;cursor:pointer}
+.btn1{background:#128C7E}.btn2{background:#25D366}
+.hint{font-size:13px;color:#777}
+.preview{background:#fafafa;border-radius:12px;padding:12px;margin-top:14px;text-align:center}
+.keychain{font-size:22px;font-weight:800;letter-spacing:3px}
+.color-legend{margin-top:10px;padding:10px;background:#fafafa;border-radius:10px}
+.legend-title{font-size:12px;color:#777;margin-bottom:7px}
+.swatches{display:flex;flex-wrap:wrap;gap:7px}
+.swatches span{font-size:11px;color:#555;display:flex;align-items:center;gap:4px}
+.sw{width:13px;height:13px;border-radius:50%;display:inline-block;border:1px solid #bbb}
+.hitam{background:#111}.putih{background:#fff}.hijau{background:#27ae60}.kuning{background:#ffd400}
+.biru{background:#2587ff}.pink{background:#ff69b4}.merah{background:#e53935}.magenta{background:#d100a8}
+.ungu{background:#7b3fc6}.tosca{background:#20c9c3}.orange{background:#ff8a00}.coklat-krem{background:#d8c0a0}.coklat{background:#a86f4b}.light-grey{background:#d3d3d3}
+
+.preview{overflow-x:auto}
+.preview-letter{
+  position:relative;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:48px;height:48px;
+  margin:8px 5px 14px;
+  border-radius:9px;
+  background:#ddd;
+  color:#111;
+  font-size:25px;
+  font-weight:900;
+  box-shadow:0 5px 0 #888, 0 7px 10px #0002;
+  transform:translateY(0);
+  transition:.15s;
+}
+.preview-letter::after{
+  content:"";
+  position:absolute;
+  left:5px;right:5px;
+  bottom:-8px;
+  height:9px;
+  border-radius:0 0 7px 7px;
+  background:inherit;
+  filter:brightness(.78);
+  box-shadow:0 2px 0 #666;
+  z-index:-1;
+}
+.preview-letter span{
+  position:relative;
+  z-index:2;
+  text-shadow:0 1px 1px #0003;
+}
+
+.payment-box{margin-top:10px;padding:14px;border:1px solid #e5e5e5;border-radius:12px;background:#fafafa}
+.bank{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid #eee}
+.bank:last-child{border-bottom:0}
+.bank-name{font-weight:800}.bank-no{font-size:17px;font-weight:800;letter-spacing:.4px}.bank-owner{font-size:12px;color:#666;margin-top:2px}
+.copy-btn{width:auto;padding:8px 12px;margin:0;background:#444;font-size:13px}
+</style>
+
+<style>
+.base-preview{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:72px;
+  margin-top:10px;
+  padding:12px 10px;
+  border-radius:15px;
+  background:#111;
+  border:3px solid #333;
+  box-shadow:inset 0 2px 5px #0003, 0 3px 8px #0002;
+  overflow-x:auto;
+}
+.base-preview .keychain{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:2px}
+.base-color-info{display:flex;align-items:center;justify-content:center;gap:7px;margin-top:8px;font-size:13px;color:#666}
+.base-dot{width:16px;height:16px;border-radius:50%;display:inline-block;border:1px solid #aaa;box-shadow:0 1px 2px #0002}
+</style>
+</head>
+<body>
+<div class="card">
+<h1>Custom Keychain Clicker</h1>
+<p class="sub">Buat keychain sesuai warna pilihan Anda.</p>
+
+<label for="name">Nama (maks. 12 karakter)</label>
+<input id="name" maxlength="12" placeholder="Contoh: FERRY-88" autocomplete="off">
+<div class="hint">Maks. 12 karakter: huruf, angka, spasi, dan simbol.</div>
+
+<div class="section">
+<label for="base">1. Warna Base</label>
+<select id="base"></select>
+<div class="color-legend">
+<div class="legend-title">Warna tersedia</div>
+<div class="swatches">
+<span><i class="sw hitam"></i>Hitam</span><span><i class="sw putih"></i>Putih</span>
+<span><i class="sw hijau"></i>Hijau</span><span><i class="sw kuning"></i>Kuning</span>
+<span><i class="sw biru"></i>Biru</span><span><i class="sw pink"></i>Pink</span>
+<span><i class="sw merah"></i>Merah</span><span><i class="sw magenta"></i>Magenta</span>
+<span><i class="sw ungu"></i>Ungu</span><span><i class="sw tosca"></i>Tosca</span><span><i class="sw orange"></i>Orange</span><span><i class="sw coklat-krem"></i>Coklat Krem</span><span><i class="sw coklat"></i>Coklat</span><span><i class="sw light-grey"></i>Light Grey</span>
+</div></div>
+</div>
+
+<div class="section">
+<label>2. Warna Keycap per Huruf</label>
+<div id="keycaps"><div class="hint">Ketik nama terlebih dahulu.</div></div>
+</div>
+
+<div class="section">
+<label>3. Warna Huruf per Huruf</label>
+<div id="letters"><div class="hint">Ketik nama terlebih dahulu.</div></div>
+</div>
+
+<div class="preview">
+<div class="hint">Preview Keychain</div>
+<div class="base-preview" id="basePreview">
+  <div id="preview" class="keychain">—</div>
+</div>
+<div class="base-color-info">
+  <span class="base-dot" id="baseDot"></span>
+  <span>Base: <strong id="baseColorName">Hitam</strong></span>
+</div>
+<div class="hint" style="margin-top:8px">Latar/base = warna Base • Kotak = Keycap • Teks = Huruf</div>
+</div>
+
+<label for="qty">Jumlah</label>
+<input id="qty" type="number" min="1" value="1">
+
+<label for="note">Catatan (opsional)</label>
+<input id="note" placeholder="Contoh: buat huruf kapital">
+
+<div class="section">
+<label for="address">Alamat Pengiriman</label>
+<textarea id="address" placeholder="Isi alamat lengkap jika pengiriman luar kota. Jika ambil langsung, tulis: AMBIL SENDIRI"></textarea>
+<div class="hint">Alamat akan ikut dikirim bersama detail pesanan.</div>
+</div>
+
+<div class="section">
+<label>Pembayaran</label>
+<div class="payment-box">
+  <div class="bank">
+    <div><div class="bank-name">BCA</div><div class="bank-no">0300864261</div><div class="bank-owner">a.n. Nanda</div></div>
+    <button type="button" class="copy-btn" onclick="copyText('0300864261')">Salin</button>
+  </div>
+  <div class="bank">
+    <div><div class="bank-name">Mandiri</div><div class="bank-no">9000030520770</div><div class="bank-owner">a.n. Ferry</div></div>
+    <button type="button" class="copy-btn" onclick="copyText('9000030520770')">Salin</button>
+  </div>
+</div>
+<div class="hint" style="margin-top:8px">Lakukan pembayaran setelah harga dan detail pesanan dikonfirmasi.</div>
+</div>
+
+<button class="btn2" id="wa">KIRIM PESANAN KE WHATSAPP</button>
+<div class="hint" style="text-align:center;margin-top:10px">Pesanan akan disimpan ke Google Sheets saat tombol WhatsApp ditekan. Alamat pengiriman dan catatan ikut tersimpan.</div>
+</div>
+
+<script>
+const colors=["Hitam","Putih","Hijau","Kuning","Biru","Pink","Merah","Magenta","Ungu","Tosca","Orange","Coklat Krem","Coklat","Light Grey"];
+
+// Nomor WhatsApp tujuan
+const WA="6282328801551";
+
+const base=document.getElementById("base");
+colors.forEach(c=>base.add(new Option(c,c)));
+const nameInput=document.getElementById("name");
+
+function makeSelect(){
+  const s=document.createElement("select");
+  colors.forEach(c=>s.add(new Option(c,c)));
+  return s;
+}
+
+function makeRows(){
+  const raw=Array.from(nameInput.value.toUpperCase()).slice(0,12).join("");
+  nameInput.value=raw;
+  const kc=document.getElementById("keycaps"), lt=document.getElementById("letters");
+  kc.innerHTML=""; lt.innerHTML="";
+  const preview=document.getElementById("preview");
+preview.innerHTML="";
+if(!raw){preview.textContent="—";}
+else{
+  [...raw].forEach((ch,i)=>{
+    const span=document.createElement("span");
+    span.className="preview-letter";
+    const text=document.createElement("span");
+    text.textContent=ch;
+    span.appendChild(text);
+    preview.appendChild(span);
+  });
+}
+  if(!raw){
+    kc.innerHTML=lt.innerHTML='<div class="hint">Ketik nama terlebih dahulu.</div>';
+    return;
+  }
+  [...raw].forEach(ch=>{
+    let r=document.createElement("div"); r.className="row";
+    let c=document.createElement("div"); c.className="char"; c.textContent=ch;
+    r.append(c,makeSelect()); kc.appendChild(r);
+
+    r=document.createElement("div"); r.className="row";
+    c=document.createElement("div"); c.className="char"; c.textContent=ch;
+    r.append(c,makeSelect()); lt.appendChild(r);
+  });
+}
+
+function shade(hex, amount){
+  const n=parseInt(hex.slice(1),16);
+  let r=(n>>16)+amount, g=((n>>8)&255)+amount, b=(n&255)+amount;
+  r=Math.max(0,Math.min(255,r)); g=Math.max(0,Math.min(255,g)); b=Math.max(0,Math.min(255,b));
+  return "#"+(1<<24 | r<<16 | g<<8 | b).toString(16).slice(1);
+}
+function updatePreview(){
+  const raw=nameInput.value.toUpperCase();
+  const baseColor=getColor(base.value);
+  const basePreview=document.getElementById("basePreview");
+  const baseDot=document.getElementById("baseDot");
+  const baseColorName=document.getElementById("baseColorName");
+  if(basePreview){
+    basePreview.style.background=baseColor;
+    basePreview.style.borderColor=shade(baseColor,-35);
+  }
+  if(baseDot) baseDot.style.background=baseColor;
+  if(baseColorName) baseColorName.textContent=base.value;
+  const spans=[...document.querySelectorAll(".preview-letter")];
+  const keycaps=[...document.querySelectorAll("#keycaps select")];
+  const letters=[...document.querySelectorAll("#letters select")];
+  spans.forEach((s,i)=>{
+    if(keycaps[i]) s.style.background=getColor(keycaps[i].value);
+    if(keycaps[i]){
+      const kc=getColor(keycaps[i].value);
+      s.style.background=kc;
+      s.style.boxShadow="0 5px 0 "+shade(kc,-35)+", 0 7px 10px #0002";
+      const afterStyle = s.style;
+    }
+    if(letters[i]) s.querySelector("span").style.color=getColor(letters[i].value);
+  });
+}
+function getColor(c){
+  return ({
+    "Hitam":"#111111","Putih":"#ffffff","Hijau":"#27ae60","Kuning":"#ffd400",
+    "Biru":"#2587ff","Pink":"#ff69b4","Merah":"#e53935","Magenta":"#d100a8",
+    "Ungu":"#7b3fc6","Tosca":"#20c9c3","Orange":"#ff8a00","Coklat Krem":"#d8c0a0","Coklat":"#a86f4b","Light Grey":"#d3d3d3"
+  })[c]||"#ddd";
+}
+document.addEventListener("change",updatePreview);
+base.addEventListener("change",updatePreview);
+nameInput.addEventListener("input",()=>{makeRows();setTimeout(updatePreview,0);});
+setTimeout(updatePreview,0);
+
+function buildMessage(){
+  const name=nameInput.value.trim();
+  if(!name){alert("Nama wajib diisi.");return null;}
+
+  const chars=[...name];
+  const keycaps=[...document.querySelectorAll("#keycaps select")].map(x=>x.value);
+  const letters=[...document.querySelectorAll("#letters select")].map(x=>x.value);
+  const qty=document.getElementById("qty").value||1;
+  const note=document.getElementById("note").value.trim();
+  const address=document.getElementById("address").value.trim();
+
+  const keycapText=chars.map((c,i)=>`${c}=${keycaps[i]}`).join(", ");
+  const letterText=chars.map((c,i)=>`${c}=${letters[i]}`).join(", ");
+
+  return `CUSTOM KEYCHAIN CLICKER
+
+Nama: ${name}
+Jumlah: ${qty}
+Warna Base: ${base.value}
+
+Warna Keycap:
+${keycapText}
+
+Warna Huruf:
+${letterText}${address ? "\n\nAlamat Pengiriman: "+address : ""}${note ? "\n\nCatatan: "+note : ""}
+
+Pembayaran:
+BCA 0300864261 a.n. Nanda
+Mandiri 9000030520770 a.n. Ferry
+
+Mohon konfirmasi harga dan pesanan saya.`;
+}
+
+const APPS_SCRIPT_URL="https://script.google.com/macros/s/AKfycbwoxC67r8iE7lDb3hObwltTRWwTOUc0rZqgCzjQLHvOZp6BgpMoKE7X_fX2VF0baHao/exec";
+
+function saveToGoogleSheet(){
+  const name=nameInput.value.trim();
+  if(!name) return Promise.resolve(false);
+  const chars=[...name];
+  const keycaps=[...document.querySelectorAll("#keycaps select")].map(x=>x.value);
+  const letters=[...document.querySelectorAll("#letters select")].map(x=>x.value);
+  const payload={
+    name:name,
+    base:base.value,
+    keycaps:keycaps.map((v,i)=>`${chars[i]}=${v}`),
+    letters:letters.map((v,i)=>`${chars[i]}=${v}`),
+    qty:document.getElementById("qty").value||1,
+    note:[document.getElementById("address").value.trim()?"Alamat: "+document.getElementById("address").value.trim():"", document.getElementById("note").value.trim()].filter(Boolean).join(" | ")
+  };
+  return fetch(APPS_SCRIPT_URL,{
+    method:"POST",
+    mode:"no-cors",
+    headers:{"Content-Type":"text/plain;charset=utf-8"},
+    body:JSON.stringify(payload)
+  }).then(()=>true).catch(()=>false);
+}
+
+function copyText(text){
+  navigator.clipboard.writeText(text).then(()=>alert("Nomor rekening berhasil disalin."));
+}
+
+async function send(){
+  const msg=buildMessage();
+  if(!msg)return;
+  const btn=document.getElementById("wa");
+  const old=btn.textContent;
+  btn.disabled=true;
+  btn.textContent="MENYIMPAN PESANAN...";
+  await saveToGoogleSheet();
+  btn.textContent="MEMBUKA WHATSAPP...";
+  window.open("https://wa.me/"+WA+"?text="+encodeURIComponent(msg),"_blank");
+  setTimeout(()=>{btn.disabled=false;btn.textContent=old;},1200);
+}
+document.getElementById("wa").onclick=()=>send();
+</script>
+</body>
+</html>
